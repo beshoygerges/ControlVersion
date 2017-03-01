@@ -1,1 +1,4 @@
-ãÓíáì Úáì İÎÇÏß íÇ ÈíÔæ
+class user{
+int id;
+String name;
+}
