@@ -1,6 +1,10 @@
 class user{
+public user(){
+System.out.println();
+}
 int id;
 String name;
 public toString(){}
 }
+
 
