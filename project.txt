@@ -1,5 +1,8 @@
 <!--samir-->
-
+String samir;
+String beshoy;
+public static void ayBetengan(){
+}
 <!--samirEnd-->
 <!--beshoy-->
 <p>hello</p>
