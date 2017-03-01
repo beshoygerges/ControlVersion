@@ -6,6 +6,6 @@ public static void ayBetengan(){
 <!--samirEnd-->
 hi
 <!--beshoy-->
-
+HI beshoy
 <!--beshoyEnd-->
 
