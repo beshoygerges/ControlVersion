@@ -42,18 +42,28 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        System.out.println("dopost");
         String username = request.getParameter("userEmail");
         String password = request.getParameter("userPassword");
         String remember = request.getParameter("remember");
+        System.out.println(remember);
+        System.out.println("before select");
         User user = instance.login(username, password);
+        System.out.println("after select");
         if (user != null) {
-            if (remember != null) {
+            if (remember .equals("remember")) {
                 Cookie cookie = new Cookie("user", user.getFirstName());
                 response.addCookie(cookie);
+                System.out.println("cookie created");
 
             }
             HttpSession session = request.getSession(true);
             session.setAttribute("user", user);
+            System.out.println("session created");
+            RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
+            dispatcher.forward(request, response);
+        } else {
+            System.out.println("user not found ");
             RequestDispatcher dispatcher = request.getRequestDispatcher("index.jsp");
             dispatcher.forward(request, response);
         }
