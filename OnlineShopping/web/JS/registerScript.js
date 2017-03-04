@@ -2,9 +2,24 @@ var reEmail = /^(([^<>()\[\]\\.,;:\s@"']+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((
 var reMobile = /^01[0-2][0-9]{8}$/;
 var reCredit = /^4[0-9]{12}(?:[0-9]{3})?$/;
 
-
 var isValidEmail, isValidPhone, isValidCreditNumber;
 var emialvalue, phonevalue, cardNumber;
+
+function validatePasswordggg()
+{
+    console.log("found");
+    var password = document.getElementById("password").value;
+    var confirmPassword = document.getElementById("confirmPassword").value;
+    console.log(password);
+    console.log(confirmPassword);
+    if (password == confirmPassword) {
+        console.log("equal");
+        document.getElementById("password_error").style.display = "none";
+    } else {
+        console.log("!equal");
+        document.getElementById("password_error").style.display = "inline";
+    }
+}
 
 function validEmail()
 {
@@ -40,12 +55,18 @@ function validCreditNumber()
     else
         document.getElementById("credit_error").style.display = "none";
 }
-function validatePassword() {
-    var password = document.getElementById("password").value;
-    var confirmPassword = document.getElementById("confirmPassword").value;
-    if (password === confirmPassword) {
-        document.getElementById("password_error").style.display = "inline";
-    } else {
-        document.getElementById("password_error").style.display = "none";
+
+function finalValidatation() {
+    if (!isValidEmail)
+    {
+        document.getElementById("email_error").style.display = "inline";
+    } else if (!isValidPhone)
+    {
+        document.getElementById("mobile_error").style.display = "inline";
+    } else if (!isValidCreditNumber)
+    {
+        document.getElementById("credit_error").style.display = "inline";
     }
 }
+;
+
