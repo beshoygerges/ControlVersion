@@ -6,6 +6,7 @@
 package servlets;
 
 import database.DataBaseHandler;
+import dto.CreditCard;
 import dto.User;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -55,24 +56,16 @@ public class Register extends HttpServlet {
         String email = request.getParameter("emial");
         String password = request.getParameter("password");
         String DateOfBirth = request.getParameter("DateOfBirth");
-         LocalDate localDate = LocalDate.parse(DateOfBirth);
+        LocalDate localDate = LocalDate.parse(DateOfBirth);
         String gender = request.getParameter("gender");
         String address = request.getParameter("address");
         String mobile = request.getParameter("mobile");
-        String creditCardNumber = request.getParameter("creditCardNumber");
+        int creditCardNumber = Integer.parseInt(request.getParameter("creditCardNumber"));
         String creditCardExpireDate = request.getParameter("creditCardExpireDate");
-        User newUser = new User(email, null, gender, firstName, lastName, localDate, password, mobile, address, "user");
-//        out.println(firstName);
-//        out.println(lastName);
-//        out.println(email);
-//        out.println(password);
-//        out.println(DateOfBirth);
-//        out.println(gender);
-//        out.println(address);
-//        out.println(mobile);
-//        out.println(creditCardNumber);
-
+        LocalDate creditCardExpireDate1 = LocalDate.parse(creditCardExpireDate);
+        CreditCard creditCard = new CreditCard(creditCardNumber, creditCardExpireDate1, 1000);
+        User newUser = new User(email, null, gender, firstName, lastName, localDate, password, mobile, address, "user", creditCard);
         dataBaseHandler.signup(newUser);
-        
+
     }
 }

@@ -6,14 +6,6 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="description" content="">
         <meta name="author" content="">
-        <!--Less styles -->
-        <!-- Other Less css file //different less files has different color scheam
-             <link rel="stylesheet/less" type="text/css" href="themes/less/simplex.less">
-             <link rel="stylesheet/less" type="text/css" href="themes/less/classified.less">
-             <link rel="stylesheet/less" type="text/css" href="themes/less/amelia.less">  MOVE DOWN TO activate
-        -->
-        <!--<link rel="stylesheet/less" type="text/css" href="themes/less/bootshop.less">
-        <script src="themes/js/less.js" type="text/javascript"></script> -->
 
         <!-- Bootstrap style --> 
         <link id="callCss" rel="stylesheet" href="themes/bootshop/bootstrap.min.css" media="screen"/>
@@ -35,7 +27,6 @@
                 display: none;
             }
         </style>
-        <script type="text/javascript" src="JS/registerScript.js"></script>
     </head>
     <body>
         <div id="header">
@@ -173,29 +164,27 @@
                                     </div>
 
                                 </div>
-
                                 <div class="control-group">
                                     <label class="control-label" for="password">Password <sup>*</sup></label>
                                     <div class="controls">
                                         <input type="password" id="password" name="password" placeholder="Password" required>
                                     </div>
-                                </div>		
+                                </div>	
                                 <div class="control-group">
                                     <label class="control-label" for="confirmPassword">Confirm Password <sup>*</sup></label>
                                     <div class="controls">
-                                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password " required>
+                                        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password " onblur="validatePasswordggg()" required>
                                         <span>
                                             <div class="alert  alert-error fade in custome-error" id="password_error">
-                                                <button type="button" class="close" data-dismiss="alert">x</button>
-                                                <strong>password not matched</strong>
+                                                <strong>password doesn't matched</strong>
                                             </div>
-                                        </span>
+                                        </span> 
                                     </div>
-                                </div>	  
+                                </div> 
                                 <div class="control-group">
-                                    <label class="control-label">Date of Birth</label>
+                                    <label class="control-label">Date of Birth<sup>*</sup></label>
                                     <div class="controls">
-                                        <input type="date" id="DateOfBirth" name="DateOfBirth"/> 
+                                        <input type="date" id="DateOfBirth" name="DateOfBirth" required/> 
                                     </div>
                                 </div>
 
@@ -232,9 +221,9 @@
                                 <div class="control-group">
                                     <label class="control-label" for="creditCardNumber">Number</label>
                                     <div class="controls">
-                                        <input type="number" id="creditCardNumber" name="creditCardNumber" placeholder="credit Card Number" onblur="validCreditNumber()" /> <span>
+                                        <input  class="form-control" type="number" id="creditCardNumber" name="creditCardNumber" placeholder="credit Card Number" onblur="validCreditNumber()" required/>
+                                        <span>
                                             <div class="alert  alert-error fade in custome-error" id="credit_error">
-                                                <button type="button" class="close" data-dismiss="alert">x</button>
                                                 <strong>Enter Valid Credit Card Number</strong>
                                             </div>
                                         </span>
@@ -243,7 +232,7 @@
                                 <div class="control-group">
                                     <label class="control-label" for="creditCardExpireDate">Expire Date </label>
                                     <div class="controls">
-                                        <input type="date" id="creditCardExpireDate" name="creditCardExpireDate"/> 
+                                        <input type="date" id="creditCardExpireDate" name="creditCardExpireDate" required/> 
                                     </div>
                                 </div>
 
@@ -253,7 +242,7 @@
                                     <div class="controls">
                                         <input type="hidden" name="email_create" value="1">
                                         <input type="hidden" name="is_new_customer" value="1">
-                                        <input class="btn btn-large btn-success" type="submit" value="Register" />
+                                        <input class="btn btn-large btn-success" type="submit" value="Register"/>
                                     </div>
                                 </div>		
                             </form>
@@ -304,7 +293,7 @@
 
         <script src="themes/js/bootshop.js"></script>
         <script src="themes/js/jquery.lightbox-0.5.js"></script>
-
+        <script type="text/javascript" src="JS/registerScript.js"></script>
         <!-- Themes switcher section ============================================================================================= -->
         <div id="secectionBox">
             <link rel="stylesheet" href="themes/switch/themeswitch.css" type="text/css" media="screen" />
