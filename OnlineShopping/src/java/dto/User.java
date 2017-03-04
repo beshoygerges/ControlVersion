@@ -7,10 +7,7 @@ package dto;
 
 import java.time.LocalDate;
 
-/**
- *
- * @author Dina Ashraf
- */
+
 public class User {
     private String email;
     private String imageUrl;

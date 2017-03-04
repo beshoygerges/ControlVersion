@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package database;
 
 import dto.CreditCard;
@@ -17,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -40,29 +35,34 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
         return instance;
     }
 
-    public static Connection getConnection() {
-        if (DataBaseHandler.connection == null) {
-            DataBaseHandler.connection = createConnection();
-        }
-
-        return DataBaseHandler.connection;
-    }
-
-    private static Connection createConnection() {
+    private DataBaseHandler() {
         try {
-            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/onlineshopping", "root", "");
-            System.out.println("connected");
-            return connection;
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            return null;
+            System.out.println("inside constructor");
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost/onlineshopping", "root", "");
+            System.out.println("success");
+        } catch (ClassNotFoundException | SQLException ex) {
+            Logger.getLogger(DataBaseHandler.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
+//    private static Connection createConnection() {
+//        try {
+//            Class.forName("com.mysql.jdbc.Driver");
+//            Connection connection = DriverManager.getConnection("jdbc:mysql://localhost/onlineshopping", "root", "");
+//            System.out.println("connected");
+//            return connection;
+//        } catch (SQLException ex) {
+//
+//        } catch (ClassNotFoundException ex) {
+//            Logger.getLogger(DataBaseHandler.class.getName()).log(Level.SEVERE, null, ex);
+//        }
+//        return null;
+//    }
     @Override
     public boolean addProduct(Product product) {
         try {
-            PreparedStatement preparedStatment1 = getConnection().prepareStatement("insert into products "
+            PreparedStatement preparedStatment1 = connection.prepareStatement("insert into products "
                     + "(productName,price,quantity,imageUrl,description,discount,categoryName)"
                     + "VALUES (?, ?, ?, ?, ?, ?, ?)");
             preparedStatment1.setString(1, product.getProductName());
@@ -73,7 +73,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
             preparedStatment1.setDouble(6, product.getDiscount());
             preparedStatment1.setString(7, product.getCategoryName());
             if (preparedStatment1.executeUpdate() > 0) {
-                PreparedStatement preparedStatment2 = getConnection().prepareStatement("select product_id "
+                PreparedStatement preparedStatment2 = connection.prepareStatement("select product_id "
                         + "from products ORDER BY product_id DESC LIMIT 1");
                 ResultSet resultSet = preparedStatment2.executeQuery();
 
@@ -85,7 +85,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
                     imagesArray = product.getOtherImagesUrls().getImagesUrl();
                     PreparedStatement preparedStatment3 = null;
                     for (String imgUrl : imagesArray) {
-                        preparedStatment3 = getConnection().prepareStatement("insert into "
+                        preparedStatment3 = connection.prepareStatement("insert into "
                                 + "productImages (imageUrl,products_product_id)"
                                 + "values (?,?)");
                         preparedStatment3.setString(1, imgUrl);
@@ -110,7 +110,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean editProduct(Product product) {
         try {
-            PreparedStatement preparedStatment = getConnection().prepareStatement("UPDATE products SET "
+            PreparedStatement preparedStatment = connection.prepareStatement("UPDATE products SET "
                     + "productName=? ,price=? ,quantity=?, imageUrl=?, description=?,"
                     + "discount=? ,categoryName=? WHERE product_id=?");
             preparedStatment.setString(1, product.getProductName());
@@ -122,13 +122,13 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
             preparedStatment.setString(7, product.getCategoryName());
             preparedStatment.setInt(8, product.getId());
             if (preparedStatment.executeUpdate() > 0) {
-                PreparedStatement preparedStatment2 = getConnection().prepareStatement("delete from productimages "
+                PreparedStatement preparedStatment2 = connection.prepareStatement("delete from productimages "
                         + "where products_product_id=?");
                 preparedStatment2.setInt(1, product.getId());
                 if (preparedStatment2.executeUpdate() > 0) {
                     ArrayList<String> otherimages = product.getOtherImagesUrls().getImagesUrl();
                     for (String imgUrl : otherimages) {
-                        preparedStatment2 = getConnection().prepareStatement("insert into "
+                        preparedStatment2 = connection.prepareStatement("insert into "
                                 + "productImages (imageUrl,products_product_id)"
                                 + "values (?,?)");
                         preparedStatment2.setString(1, imgUrl);
@@ -148,11 +148,11 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean removeProduct(Product product) {
         try {
-            PreparedStatement preparedStatment1 = getConnection().prepareStatement("DELETE FROM productImages "
+            PreparedStatement preparedStatment1 = connection.prepareStatement("DELETE FROM productImages "
                     + "WHERE products_product_id=?");
             preparedStatment1.setInt(1, product.getId());
             if (preparedStatment1.executeUpdate() > 0) {
-                PreparedStatement preparedStatment2 = getConnection().prepareStatement("DELETE FROM products "
+                PreparedStatement preparedStatment2 = connection.prepareStatement("DELETE FROM products "
                         + "WHERE product_id=?");
                 preparedStatment2.setInt(1, product.getId());
                 return preparedStatment2.executeUpdate() > 0;
@@ -172,7 +172,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     public ArrayList<User> getAllUsers() {
         ArrayList<User> userList = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from user");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from user");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 User user = new User(resultSet.getString("email"),
@@ -185,7 +185,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
                         resultSet.getString("phone"),
                         resultSet.getString("type"),
                         resultSet.getString("address"));
-                preparedStatement = getConnection().prepareStatement("select * from creditcard where number = ?");
+                preparedStatement = connection.prepareStatement("select * from creditcard where number = ?");
                 preparedStatement.setInt(1, resultSet.getInt("creditCard_number"));
                 ResultSet resultSet2 = preparedStatement.executeQuery();
                 if (resultSet2.next()) {
@@ -205,7 +205,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public User getUser(String email) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from user where email=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from user where email=?");
             preparedStatement.setString(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
@@ -219,7 +219,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
                         resultSet.getString("phone"),
                         resultSet.getString("type"),
                         resultSet.getString("address"));
-                preparedStatement = getConnection().prepareStatement("select * from creditcard where number = ?");
+                preparedStatement = connection.prepareStatement("select * from creditcard where number = ?");
                 preparedStatement.setInt(1, resultSet.getInt("creditCard_number"));
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
@@ -237,7 +237,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean checkEmailExistance(String email) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from User where email=?");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from User where email=?");
             preparedStatement.setString(1, email);
             ResultSet resultset = preparedStatement.executeQuery();
             if (resultset.next()) {
@@ -257,13 +257,13 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean signup(User user) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("INSERT INTO creditcard(number,expireDate,balance) VALUES (?,?,?)");
+            PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO creditcard(number,expireDate,balance) VALUES (?,?,?)");
             preparedStatement.setInt(1, user.getCreditCard().getCreditCardNumber());
             preparedStatement.setDate(2, Date.valueOf(user.getCreditCard().getExpireDate()));
             preparedStatement.setDouble(3, user.getCreditCard().getBalance());
             int rows = preparedStatement.executeUpdate();
             if (rows > 0) {
-                preparedStatement = getConnection().prepareStatement("INSERT INTO user(email,gender,firstName,lastName,birthDate,password,phone,imageurl,type,address,creditCard_number) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
+                preparedStatement = connection.prepareStatement("INSERT INTO user(email,gender,firstName,lastName,birthDate,password,phone,imageurl,type,address,creditCard_number) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
                 preparedStatement.setString(1, user.getEmail());
                 preparedStatement.setString(2, user.getGender());
                 preparedStatement.setString(3, user.getFirstName());
@@ -297,22 +297,29 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public User login(String email, String password) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from User where email=? and password =?");
+            System.out.println("inside login");
+            // where email=? and password =?
+            System.out.println(email + "++++++++++ " + password);
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from user where email=? and password =?");
             preparedStatement.setString(1, email);
             preparedStatement.setString(2, password);
             ResultSet resultSet = preparedStatement.executeQuery();
+            System.out.println("before while");
+
             if (resultSet.next()) {
-                User user = new User(resultSet.getString("email"),
+                System.out.println("there is exist");
+                User user;
+                user = new User(resultSet.getString("email"),
                         resultSet.getString("imageurl"),
                         resultSet.getString("gender"),
                         resultSet.getString("firstName"),
                         resultSet.getString("lastName"),
-                        resultSet.getDate("birthDate").toLocalDate(),
+                        LocalDate.parse(resultSet.getString("birthDate"), DateTimeFormatter.ofPattern("dd/MM/yyyy")),
                         resultSet.getString("password"),
                         resultSet.getString("phone"),
                         resultSet.getString("type"),
                         resultSet.getString("address"));
-                preparedStatement = getConnection().prepareStatement("select * from creditcard where number = ?");
+                preparedStatement = connection.prepareStatement("select * from creditcard where number = ?");
                 preparedStatement.setInt(1, resultSet.getInt("creditCard_number"));
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
@@ -339,7 +346,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
 
     private ArrayList<Product> searchWithCategoryAndName(String category, String productName, ArrayList<Product> productList) {
         try {
-            PreparedStatement preparedStatment2 = getConnection().prepareStatement("select * from products"
+            PreparedStatement preparedStatment2 = connection.prepareStatement("select * from products"
                     + " where (categoryName=?) OR (productName=?)");
             preparedStatment2.setString(1, category);
             preparedStatment2.setString(2, productName);
@@ -361,7 +368,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
 
     private ArrayList<Product> SearchProductGeneric(String category, String productName, double productPrice, ArrayList<Product> productList) {
         try {
-            PreparedStatement preparedStatment1 = getConnection().prepareStatement("select * from products"
+            PreparedStatement preparedStatment1 = connection.prepareStatement("select * from products"
                     + " where (categoryName like ?) OR (productName like ?) OR (price <= ?)");
             preparedStatment1.setString(1, "%" + category + "%");
             preparedStatment1.setString(2, "%" + productName + "%");
@@ -371,7 +378,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
             while (resultSet.next()) {
 
                 int productID = resultSet.getInt("product_id");
-                PreparedStatement imagesPreparedStatement = getConnection().
+                PreparedStatement imagesPreparedStatement = connection.
                         prepareStatement("select * from productimages where"
                                 + " products_product_id =? ");
                 imagesPreparedStatement.setInt(1, productID);
@@ -399,13 +406,13 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     public ArrayList<Product> getAllproducts() {
         ArrayList<Product> productList = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from products");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from products");
             ResultSet resultSet = preparedStatement.executeQuery();
             ImagesUrl otherImagesUrl = new ImagesUrl();
             while (resultSet.next()) {
 
                 int productID = resultSet.getInt("product_id");
-                PreparedStatement imagesPreparedStatement = getConnection().prepareStatement("select * from productimages"
+                PreparedStatement imagesPreparedStatement = connection.prepareStatement("select * from productimages"
                         + " where products_product_id =? ");
                 imagesPreparedStatement.setInt(1, productID);
                 ResultSet ImagesresultSet = imagesPreparedStatement.executeQuery();
@@ -431,7 +438,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean editUserDetials(User user) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("update user "
+            PreparedStatement preparedStatement = connection.prepareStatement("update user "
                     + "set firstName = ?,"
                     + "lastName = ?,"
                     + "birthDate = ?,"
@@ -458,13 +465,13 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public double getUserBalance(String email) {
         try {
-            PreparedStatement preparedStatment = getConnection().prepareStatement("select creditCard_number "
+            PreparedStatement preparedStatment = connection.prepareStatement("select creditCard_number "
                     + "from user where email=?");
             preparedStatment.setString(1, email);
             ResultSet resultset = preparedStatment.executeQuery();
             if (resultset.next()) {
                 int creditCardNum = resultset.getInt("creditCard_number");
-                preparedStatment = getConnection().prepareStatement("select balance from creditcard where "
+                preparedStatment = connection.prepareStatement("select balance from creditcard where "
                         + "number=?");
                 System.out.println(creditCardNum);
                 preparedStatment.setInt(1, creditCardNum);
@@ -491,7 +498,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
             System.out.println("oldbalance " + oldBalance);
             double newBalance = oldBalance + addedBalance;
             System.out.println("new balace " + newBalance);
-            PreparedStatement preparedStatment = getConnection().prepareStatement("update creditcard set balance =? where "
+            PreparedStatement preparedStatment = connection.prepareStatement("update creditcard set balance =? where "
                     + "number=?");
             preparedStatment.setDouble(1, newBalance);
             preparedStatment.setInt(2, user.getCreditCard().getCreditCardNumber());
@@ -513,7 +520,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     public boolean createOrder(String email, ArrayList<Product> products) {
         try {
 
-            PreparedStatement preparedStatment1 = getConnection().prepareStatement("insert into order "
+            PreparedStatement preparedStatment1 = connection.prepareStatement("insert into order "
                     + "(date,status,email)"
                     + "VALUES (?, ?, ?)");
             preparedStatment1.setDate(1, Date.valueOf(LocalDate.now()));
@@ -521,7 +528,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
             preparedStatment1.setString(3, email);
 
             if (preparedStatment1.executeUpdate() > 0) {
-                PreparedStatement preparedStatment2 = getConnection().prepareStatement("select id from order ORDER BY id DESC LIMIT 1");
+                PreparedStatement preparedStatment2 = connection.prepareStatement("select id from order ORDER BY id DESC LIMIT 1");
                 ResultSet resultSet = preparedStatment2.executeQuery();
                 if (resultSet.next()) {
                     int orderID = resultSet.getInt("id");
@@ -541,7 +548,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     private boolean addProductsToOrder(int orderID, ArrayList<Product> products) {
         for (Product product : products) {
             try {
-                PreparedStatement preparedStatment1 = getConnection().
+                PreparedStatement preparedStatment1 = connection.
                         prepareStatement("insert into orderdetials "
                                 + "(products_product_id,order_id,price,quantity)"
                                 + "VALUES (?, ?,?,?)");
@@ -564,7 +571,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean checkProductNameExistance(String productName) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from products"
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from products"
                     + " where productName=?");
             preparedStatement.setString(1, productName);
             ResultSet resultset = preparedStatement.executeQuery();
@@ -585,7 +592,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean updateOrderStatus(String email, int status) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("update order "
+            PreparedStatement preparedStatement = connection.prepareStatement("update order "
                     + "set status = ? where User_email = ?");
             preparedStatement.setInt(1, 1);
             preparedStatement.setString(2, email);
@@ -599,7 +606,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public boolean DeleteOrder(String email) {
         try {
-            PreparedStatement preparedStatement = getConnection().
+            PreparedStatement preparedStatement = connection.
                     prepareStatement("select id from order where status=0 and User_email=?");
             preparedStatement.setString(1, email);
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -625,13 +632,13 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     @Override
     public Product getProduct(int productID) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from products "
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from products "
                     + "where product_id=?");
             preparedStatement.setInt(1, productID);
             ResultSet resultSet = preparedStatement.executeQuery();
             ImagesUrl otherImagesUrl = new ImagesUrl();
             if (resultSet.next()) {
-                PreparedStatement imagesPreparedStatement = getConnection().prepareStatement("select * "
+                PreparedStatement imagesPreparedStatement = connection.prepareStatement("select * "
                         + "from productimages where products_product_id =? ");
                 imagesPreparedStatement.setInt(1, productID);
                 ResultSet ImagesresultSet = imagesPreparedStatement.executeQuery();
@@ -659,11 +666,11 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     public ArrayList<Product> getDiscountedProducts() {
         ArrayList<Product> discountedProductList = new ArrayList<>();
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from products where discount > 0");
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from products where discount > 0");
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()) {
                 int productID = resultSet.getInt("product_id");
-                PreparedStatement imagesPreparedStatement = getConnection().prepareStatement("select * from productimages"
+                PreparedStatement imagesPreparedStatement = connection.prepareStatement("select * from productimages"
                         + " where products_product_id =? ");
                 imagesPreparedStatement.setInt(1, productID);
                 ResultSet ImagesresultSet = imagesPreparedStatement.executeQuery();
@@ -691,7 +698,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
     // ajax in register and in edit
     public boolean CheckCreditCardNumberExistance(int number) {
         try {
-            PreparedStatement preparedStatement = getConnection().prepareStatement("select * from creditcard"
+            PreparedStatement preparedStatement = connection.prepareStatement("select * from creditcard"
                     + " where number=?");
             preparedStatement.setInt(1, number);
             ResultSet resultset = preparedStatement.executeQuery();

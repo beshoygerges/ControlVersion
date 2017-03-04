@@ -16,11 +16,14 @@
         <%! String username = null;%>
 
         <%
+
             Cookie[] cookies = request.getCookies();
-            for (int i = 0; i < cookies.length; i++) {
-                if (cookies[i].getName().equals("user")) {
-                    username = cookies[i].getName();
-                    break;
+            if (cookies != null) {
+                for (int i = 0; i < cookies.length; i++) {
+                    if (cookies[i].getName().equals("user")) {
+                        username = cookies[i].getName();
+                        break;
+                    }
                 }
             }
 
