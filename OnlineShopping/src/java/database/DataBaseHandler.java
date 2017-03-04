@@ -323,7 +323,7 @@ public class DataBaseHandler implements DataBaseAdminHandlerInterface, DataBaseH
                 preparedStatement.setInt(1, resultSet.getInt("creditCard_number"));
                 resultSet = preparedStatement.executeQuery();
                 if (resultSet.next()) {
-                    CreditCard creditCard = new CreditCard(resultSet.getInt("number"), resultSet.getDate("expireDate").toLocalDate(), resultSet.getDouble("balance"));
+                    CreditCard creditCard = new CreditCard(resultSet.getInt("number"), LocalDate.parse(resultSet.getString("expireDate"), DateTimeFormatter.ofPattern("dd/MM/yyyy")), resultSet.getDouble("balance"));
                     user.setCreditCard(creditCard);
                     return user;
                 }

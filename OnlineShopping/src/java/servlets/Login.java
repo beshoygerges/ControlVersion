@@ -51,8 +51,9 @@ public class Login extends HttpServlet {
         User user = instance.login(username, password);
         System.out.println("after select");
         if (user != null) {
-            if (remember .equals("remember")) {
+            if (remember.equals("remember")) {
                 Cookie cookie = new Cookie("user", user.getFirstName());
+                cookie.setMaxAge(24 * 60 * 60);
                 response.addCookie(cookie);
                 System.out.println("cookie created");
 
